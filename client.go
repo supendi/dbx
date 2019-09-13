@@ -26,7 +26,7 @@ func (me *Client) ExecStatement(statement *Statement) (sql.Result, error) {
 
 //Read records on database and return it as sqlx.Rows
 func (me *Client) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
-	if me.transaction != nil {
+	if me.transaction != nil && !me.transaction.IsComplete() {
 		return me.transaction.QueryStatement(statement)
 	}
 	return me.DB.NamedQueryContext(statement.context, statement.SQL, statement.Parameters)
