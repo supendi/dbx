@@ -45,7 +45,7 @@ func Test_Transaction_ExecStatement(t *testing.T) {
 		return
 	}
 
-	fmt.Println("Insert into unit_testx success")
+	fmt.Println("Insert into unit_testx using transaction success")
 }
 
 func Test_Transaction_QueryStatement(t *testing.T) {
@@ -111,6 +111,7 @@ func Test_Transaction_QueryStatement(t *testing.T) {
 	defer rows.Close()
 
 	for rows.Next() {
+		fmt.Println("Select using transaction succed")
 		return
 	}
 	t.Error("Query result must have records.")
