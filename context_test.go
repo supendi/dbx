@@ -11,6 +11,7 @@ import (
 
 func Test_Context_AddStatement(t *testing.T) {
 	db, err := getSqlxDb()
+	defer db.Close()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -29,6 +30,7 @@ func Test_Context_AddStatement(t *testing.T) {
 
 func Test_Context_ClearStatements(t *testing.T) {
 	db, err := getSqlxDb()
+	defer db.Close()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -48,6 +50,7 @@ func Test_Context_ClearStatements(t *testing.T) {
 
 func Test_Context_ShouldUseTransaction1(t *testing.T) {
 	db, err := getSqlxDb()
+	defer db.Close()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -272,7 +275,6 @@ func Test_Context_SaveChanges_MultiStatement_UseExternalTransaction(t *testing.T
 }
 
 func Test_Context_SaveChanges_UseExternalTransaction_MustRolledBack(t *testing.T) {
-
 	db, err := getSqlxDb()
 	defer db.Close()
 	if err != nil {

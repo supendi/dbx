@@ -16,9 +16,9 @@ func getSqlxDb() (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	// _, errEx := db.Exec("TRUNCATE TABLE unit_testx")
-	// if errEx != nil {
-	// 	return nil, err
-	// }
+	_, errEx := db.Exec("TRUNCATE TABLE unit_testx")
+	if errEx != nil {
+		return nil, err
+	}
 	return db, err
 }
