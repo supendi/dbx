@@ -178,4 +178,5 @@ func Test_Client_NewClient(t *testing.T) {
 	if dbClient.DB == nil {
 		t.Errorf("Fatal error: dbClient.DB expected to be not <nil>")
 	}
+	fmt.Println("Test NewClient success")
 }
