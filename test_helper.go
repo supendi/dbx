@@ -7,7 +7,7 @@ import (
 )
 
 func getSqlxDb() (*sqlx.DB, error) {
-	db, err := sqlx.Open("postgres", "host=localhost dbname=pgx user=postgres password=irpan123 sslmode=disable")
+	db, err := sqlx.Open("postgres", "host=localhost dbname=dbx user=postgres password=irpan123 sslmode=disable")
 	if err != nil {
 		return db, err
 	}
@@ -16,7 +16,7 @@ func getSqlxDb() (*sqlx.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	_, errEx := db.Exec("TRUNCATE TABLE pgx_ut")
+	_, errEx := db.Exec("TRUNCATE TABLE unit_testx")
 	if errEx != nil {
 		return nil, err
 	}
