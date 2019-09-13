@@ -58,7 +58,7 @@ func (me *Transaction) StartOver() error {
 //If commit failed, it will try to rollback the transaction
 func (me *Transaction) CommitAndStartOver() error {
 	if me.Tx != nil && !me.IsComplete() {
-		err := me.Tx.Commit()
+		err := me.Commit()
 		if err != nil {
 			rollBackError := me.Rollback()
 			if rollBackError != nil {
