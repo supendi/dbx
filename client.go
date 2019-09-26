@@ -1,6 +1,7 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 
@@ -24,12 +25,31 @@ func (me *Client) ExecStatement(statement *Statement) (sql.Result, error) {
 	return me.DB.NamedExec(statement.SQL, statement.Parameters)
 }
 
+//ExecStatementContext create, update or update statement
+func (me *Client) ExecStatementContext(ctx context.Context, statement *Statement) (sql.Result, error) {
+	if me.transaction != nil {
+		return me.transaction.ExecStatementContext(ctx, statement)
+	}
+	if me.DB == nil {
+		return nil, errors.New("DB instance of type (*sql.DB) is nil")
+	}
+	return me.DB.NamedExecContext(ctx, statement.SQL, statement.Parameters)
+}
+
 //Read records on database and return it as sqlx.Rows
 func (me *Client) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
 	if me.transaction != nil && !me.transaction.IsComplete() {
 		return me.transaction.QueryStatement(statement)
 	}
 	return me.DB.NamedQuery(statement.SQL, statement.Parameters)
+}
+
+//Read records on database and return it as sqlx.Rows
+func (me *Client) QueryStatementContext(ctx context.Context, statement *Statement) (*sqlx.Rows, error) {
+	if me.transaction != nil && !me.transaction.IsComplete() {
+		return me.transaction.QueryStatementContext(ctx, statement)
+	}
+	return me.DB.NamedQueryContext(ctx, statement.SQL, statement.Parameters)
 }
 
 //BeginTransaction begin a new transaction
