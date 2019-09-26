@@ -36,7 +36,7 @@ func (me *Client) ExecStatementContext(ctx context.Context, statement *Statement
 	return me.DB.NamedExecContext(ctx, statement.SQL, statement.Parameters)
 }
 
-//Read records on database and return it as sqlx.Rows
+//QueryStatement records on database and return it as sqlx.Rows
 func (me *Client) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
 	if me.transaction != nil && !me.transaction.IsComplete() {
 		return me.transaction.QueryStatement(statement)
@@ -44,7 +44,7 @@ func (me *Client) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
 	return me.DB.NamedQuery(statement.SQL, statement.Parameters)
 }
 
-//Read records on database and return it as sqlx.Rows
+//QueryStatementContext records on database and return it as sqlx.Rows
 func (me *Client) QueryStatementContext(ctx context.Context, statement *Statement) (*sqlx.Rows, error) {
 	if me.transaction != nil && !me.transaction.IsComplete() {
 		return me.transaction.QueryStatementContext(ctx, statement)
