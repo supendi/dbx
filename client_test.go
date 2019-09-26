@@ -1,7 +1,6 @@
 package dbx
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -20,10 +19,10 @@ func Test_Client_ExecStatement(t *testing.T) {
 	client := NewClient(db)
 
 	var newId = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var sql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	statement := NewStatement(newContext, sql)
+	statement := NewStatement(sql)
 	statement.AddParameter("id", newId)
 	statement.AddParameter("name", "Andi Setiawan")
 	statement.AddParameter("created_at", time.Now())
@@ -54,10 +53,10 @@ func Test_Client_QueryStatement(t *testing.T) {
 	client := NewClient(db)
 
 	var newId = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var insertSql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	insertStatement := NewStatement(newContext, insertSql)
+	insertStatement := NewStatement(insertSql)
 	insertStatement.AddParameter("id", newId)
 	insertStatement.AddParameter("name", "Dadang")
 	insertStatement.AddParameter("created_at", time.Now())
@@ -76,7 +75,7 @@ func Test_Client_QueryStatement(t *testing.T) {
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id;"
-	selectStatement := NewStatement(newContext, selectSql)
+	selectStatement := NewStatement(selectSql)
 	selectStatement.AddParameter("id", newId)
 
 	rows, err := client.QueryStatement(selectStatement)

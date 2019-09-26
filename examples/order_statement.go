@@ -31,7 +31,7 @@ func (me *OrderStatement) MapOrderToParam(statement *dbx.Statement, order *Order
 }
 
 func (me *OrderStatement) GetAll(ctx context.Context) ([]*Order, error) {
-	statement := dbx.NewStatement(ctx, `SELECT * FROM order`)
+	statement := dbx.NewStatement(`SELECT * FROM order`)
 	me.dbContext.AddStatement(statement)
 
 	rows, err := me.dbContext.QueryStatement(statement)
@@ -52,7 +52,7 @@ func (me *OrderStatement) GetAll(ctx context.Context) ([]*Order, error) {
 }
 
 func (me *OrderStatement) GetByID(ctx context.Context, orderID string) (*Order, error) {
-	statement := dbx.NewStatement(ctx, `SELECT * FROM "order" WHERE id = :id`)
+	statement := dbx.NewStatement(`SELECT * FROM "order" WHERE id = :id`)
 	statement.AddParameter(`id`, orderID)
 	me.dbContext.AddStatement(statement)
 
@@ -73,21 +73,21 @@ func (me *OrderStatement) GetByID(ctx context.Context, orderID string) (*Order, 
 }
 
 func (me *OrderStatement) Add(ctx context.Context, order *Order) {
-	statement := dbx.NewStatement(ctx, `INSERT INTO "order" (id, order_number, order_date, total, created_at, updated_at) VALUES (:id, :order_number, :order_date, :total, :created_at, :updated_at)`)
+	statement := dbx.NewStatement(`INSERT INTO "order" (id, order_number, order_date, total, created_at, updated_at) VALUES (:id, :order_number, :order_date, :total, :created_at, :updated_at)`)
 	me.MapOrderToParam(statement, order)
 
 	me.dbContext.AddStatement(statement)
 }
 
 func (me *OrderStatement) Update(ctx context.Context, order *Order) {
-	statement := dbx.NewStatement(ctx, `UPDATE "order" SET order_number = :order_number, order_date = :order_date, total = :total, created_at = :created_at, updated_at = :updated_at WHERE id=:id`)
+	statement := dbx.NewStatement(`UPDATE "order" SET order_number = :order_number, order_date = :order_date, total = :total, created_at = :created_at, updated_at = :updated_at WHERE id=:id`)
 	me.MapOrderToParam(statement, order)
 
 	me.dbContext.AddStatement(statement)
 }
 
 func (me *OrderStatement) Delete(ctx context.Context, orderID string) {
-	statement := dbx.NewStatement(ctx, `DELETE FROM "order" WHERE id = :id`)
+	statement := dbx.NewStatement(`DELETE FROM "order" WHERE id = :id`)
 	statement.AddParameter(`id`, orderID)
 
 	me.dbContext.AddStatement(statement)

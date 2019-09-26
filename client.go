@@ -21,7 +21,7 @@ func (me *Client) ExecStatement(statement *Statement) (sql.Result, error) {
 	if me.DB == nil {
 		return nil, errors.New("DB instance of type (*sql.DB) is nil")
 	}
-	return me.DB.NamedExecContext(statement.context, statement.SQL, statement.Parameters)
+	return me.DB.NamedExec(statement.SQL, statement.Parameters)
 }
 
 //Read records on database and return it as sqlx.Rows
@@ -29,7 +29,7 @@ func (me *Client) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
 	if me.transaction != nil && !me.transaction.IsComplete() {
 		return me.transaction.QueryStatement(statement)
 	}
-	return me.DB.NamedQueryContext(statement.context, statement.SQL, statement.Parameters)
+	return me.DB.NamedQuery(statement.SQL, statement.Parameters)
 }
 
 //BeginTransaction begin a new transaction
