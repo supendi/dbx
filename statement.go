@@ -1,9 +1,11 @@
 package dbx
 
-import "context"
+type SqlParameter struct {
+	Name  string
+	Value string
+}
 
 type Statement struct {
-	context    context.Context
 	SQL        string
 	Parameters map[string]interface{}
 }
@@ -13,11 +15,14 @@ func (me *Statement) AddParameter(name string, value interface{}) {
 	me.Parameters[name] = value
 }
 
-func NewStatement(context context.Context, sql string) *Statement {
+func NewStatement(sql string, params ...*SqlParameter) *Statement {
 	var statement = &Statement{
-		context: context,
-		SQL:     sql,
+		SQL: sql,
 	}
 	statement.Parameters = make(map[string]interface{})
+
+	for _, param := range params {
+		statement.Parameters[param.Name] = param.Value
+	}
 	return statement
 }

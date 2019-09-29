@@ -1,7 +1,6 @@
 package dbx
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -24,10 +23,10 @@ func Test_Transaction_ExecStatement(t *testing.T) {
 	}
 
 	var newId = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var sql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	statement := NewStatement(newContext, sql)
+	statement := NewStatement(sql)
 	statement.AddParameter("id", newId)
 	statement.AddParameter("name", "Irpan Supendi")
 	statement.AddParameter("created_at", time.Now())
@@ -63,10 +62,10 @@ func Test_Transaction_QueryStatement(t *testing.T) {
 	}
 
 	var newId = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var insertSql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	statement := NewStatement(newContext, insertSql)
+	statement := NewStatement(insertSql)
 	statement.AddParameter("id", newId)
 	statement.AddParameter("name", "Irpan Supendi")
 	statement.AddParameter("created_at", time.Now())
@@ -91,7 +90,7 @@ func Test_Transaction_QueryStatement(t *testing.T) {
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id;"
-	queryStatement := NewStatement(newContext, selectSql)
+	queryStatement := NewStatement(selectSql)
 	queryStatement.AddParameter("id", newId)
 	if dbTrans.IsComplete() {
 		err = dbTrans.StartOver()

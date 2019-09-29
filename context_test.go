@@ -1,7 +1,6 @@
 package dbx
 
 import (
-	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -18,7 +17,7 @@ func Test_Context_AddStatement(t *testing.T) {
 	dbClient := NewClient(db)
 	dbContext := NewContext(dbClient)
 
-	statement := NewStatement(context.Background(), "SELECT * FROM unit_testx")
+	statement := NewStatement("SELECT * FROM unit_testx")
 	dbContext.AddStatement(statement)
 
 	if len(dbContext.Statements) != 1 {
@@ -36,7 +35,7 @@ func Test_Context_ClearStatements(t *testing.T) {
 	}
 	dbClient := NewClient(db)
 	dbContext := NewContext(dbClient)
-	statement := NewStatement(context.Background(), "SELECT * FROM unit_testx")
+	statement := NewStatement("SELECT * FROM unit_testx")
 	dbContext.AddStatement(statement)
 
 	dbContext.ClearStatements()
@@ -57,7 +56,7 @@ func Test_Context_ShouldUseTransaction1(t *testing.T) {
 	dbClient := NewClient(db)
 	dbContext := NewContext(dbClient)
 
-	statement := NewStatement(context.Background(), "SELECT * FROM unit_testx")
+	statement := NewStatement("SELECT * FROM unit_testx")
 
 	dbContext.AddStatement(statement)
 	dbContext.AddStatement(statement)
@@ -76,7 +75,7 @@ func Test_Context_ShouldUseTransaction2(t *testing.T) {
 	}
 	dbClient := NewClient(db)
 	dbContext := NewContext(dbClient)
-	statement := NewStatement(context.Background(), "SELECT * FROM unit_testx")
+	statement := NewStatement("SELECT * FROM unit_testx")
 
 	dbContext.AddStatement(statement)
 	tx, err := dbContext.BeginTransaction()
@@ -103,10 +102,10 @@ func Test_Context_SaveChanges_SingleStatement(t *testing.T) {
 	dbContext := NewContext(dbClient)
 
 	var newId = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var insertSql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	insertStatement := NewStatement(newContext, insertSql)
+	insertStatement := NewStatement(insertSql)
 
 	insertStatement.AddParameter("name", "Dadang")
 	insertStatement.AddParameter("created_at", time.Now())
@@ -126,7 +125,7 @@ func Test_Context_SaveChanges_SingleStatement(t *testing.T) {
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id;"
-	selectStatement := NewStatement(newContext, selectSql)
+	selectStatement := NewStatement(selectSql)
 	selectStatement.AddParameter("id", newId)
 
 	rows, err := dbContext.QueryStatement(selectStatement)
@@ -156,16 +155,16 @@ func Test_Context_SaveChanges_MultiStatement_UseDefaultTransaction(t *testing.T)
 	dbContext := NewContext(dbClient)
 	var newId1 = uuid.New()
 	var newId2 = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var insertSql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	insertStatement1 := NewStatement(newContext, insertSql)
+	insertStatement1 := NewStatement(insertSql)
 	insertStatement1.AddParameter("id", newId1)
 	insertStatement1.AddParameter("name", "Dadang")
 	insertStatement1.AddParameter("created_at", time.Now())
 	insertStatement1.AddParameter("updated_at", nil)
 
-	insertStatement2 := NewStatement(newContext, insertSql)
+	insertStatement2 := NewStatement(insertSql)
 	insertStatement2.AddParameter("id", newId2)
 	insertStatement2.AddParameter("name", "Suhendra")
 	insertStatement2.AddParameter("created_at", time.Now())
@@ -185,7 +184,7 @@ func Test_Context_SaveChanges_MultiStatement_UseDefaultTransaction(t *testing.T)
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id1 OR id =:id2;"
-	selectStatement := NewStatement(newContext, selectSql)
+	selectStatement := NewStatement(selectSql)
 	selectStatement.AddParameter("id1", newId1)
 	selectStatement.AddParameter("id2", newId1)
 
@@ -224,16 +223,16 @@ func Test_Context_SaveChanges_MultiStatement_UseExternalTransaction(t *testing.T
 
 	var newId1 = uuid.New()
 	var newId2 = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 	var insertSql = "INSERT INTO unit_testx (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	insertStatement1 := NewStatement(newContext, insertSql)
+	insertStatement1 := NewStatement(insertSql)
 	insertStatement1.AddParameter("id", newId1)
 	insertStatement1.AddParameter("name", "Dadang")
 	insertStatement1.AddParameter("created_at", time.Now())
 	insertStatement1.AddParameter("updated_at", nil)
 
-	insertStatement2 := NewStatement(newContext, insertSql)
+	insertStatement2 := NewStatement(insertSql)
 	insertStatement2.AddParameter("id", newId2)
 	insertStatement2.AddParameter("name", "Suhendra")
 	insertStatement2.AddParameter("created_at", time.Now())
@@ -254,7 +253,7 @@ func Test_Context_SaveChanges_MultiStatement_UseExternalTransaction(t *testing.T
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id1 OR id =:id2;"
-	selectStatement := NewStatement(newContext, selectSql)
+	selectStatement := NewStatement(selectSql)
 	selectStatement.AddParameter("id1", newId1)
 	selectStatement.AddParameter("id2", newId1)
 
@@ -290,10 +289,10 @@ func Test_Context_SaveChanges_UseExternalTransaction_MustRolledBack(t *testing.T
 	dbContext.SetTransaction(tx)
 
 	var newId1 = uuid.New()
-	var newContext = context.Background()
+	//var newContext = context.Background()
 
 	insertSql := "INSERT INTO users (id, full_name, username, password, created_at, updated_at) VALUES (:id, :full_name, :username, :password, :created_at, :updated_at)"
-	statement1 := NewStatement(newContext, insertSql)
+	statement1 := NewStatement(insertSql)
 	statement1.AddParameter("id", newId1)
 	statement1.AddParameter("full_name", "Andi Setiawan")
 	statement1.AddParameter("username", "andi")
@@ -301,7 +300,7 @@ func Test_Context_SaveChanges_UseExternalTransaction_MustRolledBack(t *testing.T
 	statement1.AddParameter("created_at", time.Now())
 	statement1.AddParameter("updated_at", nil)
 
-	statement2 := NewStatement(newContext, insertSql)
+	statement2 := NewStatement(insertSql)
 	statement2.AddParameter("id", newId1) //duplicate id
 	statement2.AddParameter("full_name", "Bowo")
 	statement2.AddParameter("username", "bowo")
@@ -322,7 +321,7 @@ func Test_Context_SaveChanges_UseExternalTransaction_MustRolledBack(t *testing.T
 	}
 
 	selectSql := "SELECT * FROM unit_testx WHERE id=:id1 OR id =:id2;"
-	selectStatement := NewStatement(newContext, selectSql)
+	selectStatement := NewStatement(selectSql)
 	selectStatement.AddParameter("id1", newId1)
 	selectStatement.AddParameter("id2", newId1)
 
