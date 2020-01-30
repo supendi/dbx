@@ -69,7 +69,7 @@ func TestCreateOrder(t *testing.T) {
 	}
 }
 
-func TestUpdateOrder(t *testing.T) {
+func TestUpdateOrderMustError(t *testing.T) {
 	dbContext, err := initDBContext()
 
 	dbContext.BeginTransaction()
@@ -100,6 +100,58 @@ func TestUpdateOrder(t *testing.T) {
 	}
 
 	updatedOrder, err := orderService.UpdateOrder(ctx, updateRequest)
+	if err == nil {
+		t.Error("Update process should return error but got nil")
+	}
+	err = dbContext.CompleteTransaction()
+	if err != nil {
+		t.Error("Transaction complete error: " + err.Error())
+	}
+	getRequest := &order.OrderGetRequest{
+		ID: updatedOrder.ID,
+	}
+	fetchedOrder, err := orderService.GetOrder(ctx, getRequest)
+	if err == nil {
+		t.Error("Error should not be nil")
+	}
+
+	if fetchedOrder != nil {
+		t.Error("Fecthed order should be nil. Because we want to make sure that  data wasn't stored on database")
+		return
+	}
+}
+
+func TestUpdateOrder(t *testing.T) {
+	dbContext, err := initDBContext()
+
+	dbContext.BeginTransaction()
+	defer dbContext.Close()
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	orderRepo := postgres.NewOrderRepository(dbContext)
+	orderService := order.NewOrderService(orderRepo)
+	createRequest := &order.OrderCreateRequest{
+		OrderNumber: "ORDER 01",
+		OrderDate:   time.Now(),
+		Total:       10000,
+	}
+	ctx := context.Background()
+	createdOrder, err := orderService.CreateOrder(ctx, createRequest)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Print(createdOrder.ID + "\n")
+	var newOrderNumber = "ORDER KE DUA"
+	updateRequest := &order.OrderUpdateRequest{
+		ID:          createdOrder.ID,
+		OrderNumber: &newOrderNumber,
+		OrderDate:   createdOrder.OrderDate,
+		Total:       200,
+	}
+
+	updatedOrder, err := orderService.UpdateOrder(ctx, updateRequest)
 	if err != nil {
 		t.Error("Update error: " + err.Error())
 	}
@@ -109,4 +161,45 @@ func TestUpdateOrder(t *testing.T) {
 	}
 	fmt.Print(updatedOrder)
 
+}
+
+func TestGetOrder(t *testing.T) {
+	dbContext, err := initDBContext()
+
+	dbContext.BeginTransaction()
+	defer dbContext.Close()
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	orderRepo := postgres.NewOrderRepository(dbContext)
+	orderService := order.NewOrderService(orderRepo)
+	createRequest := &order.OrderCreateRequest{
+		OrderNumber: "ORDER 01",
+		OrderDate:   time.Now(),
+		Total:       10000,
+	}
+	ctx := context.Background()
+	createdOrder, err := orderService.CreateOrder(ctx, createRequest)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Print(createdOrder.ID + "\n")
+	getRequest := &order.OrderGetRequest{
+		ID: createdOrder.ID,
+	}
+
+	fetchedOrder, err := orderService.GetOrder(ctx, getRequest)
+	if err != nil {
+		t.Error("Get error: " + err.Error())
+	}
+
+	if fetchedOrder == nil {
+		t.Error("Fecthed order should not be nil")
+		return
+	}
+
+	if fetchedOrder.ID != createdOrder.ID {
+		t.Error("Fecthed order ID should be the same with created order ID")
+	}
 }

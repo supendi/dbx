@@ -59,7 +59,10 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*order.
 	if err != nil {
 		return nil, err
 	}
-	order := me.mapEntityToDomain(orderRecord)
+	var order *order.Order
+	if orderRecord != nil {
+		order = me.mapEntityToDomain(orderRecord)
+	}
 
 	return order, nil
 }

@@ -37,6 +37,11 @@ type OrderUpdateRequest struct {
 	UpdatedAt   *time.Time
 }
 
+//OrderGetRequest represent the request model for getting an order by Order ID
+type OrderGetRequest struct {
+	ID string
+}
+
 //OrderRepository bertugas untuk mengurus data access order
 type OrderRepository interface {
 	GetAll(ctx context.Context) ([]*Order, error)
@@ -82,6 +87,15 @@ func (me *OrderService) UpdateOrder(ctx context.Context, request *OrderUpdateReq
 	existingOrder.UpdatedAt = updatedDate
 
 	return me.orderRepository.Update(ctx, existingOrder)
+}
+
+//GetOrder gets an order by its ID
+func (me *OrderService) GetOrder(ctx context.Context, request *OrderGetRequest) (*Order, error) {
+	fetchedOrder, err := me.orderRepository.GetByID(ctx, request.ID)
+	if fetchedOrder == nil {
+		return nil, ErrOrderNotFound
+	}
+	return fetchedOrder, err
 }
 
 //NewOrderService return a new order service instance
