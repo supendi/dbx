@@ -32,25 +32,28 @@ func (me *OrderRepository) setStatementParam(statement *dbx.Statement, order *Or
 	statement.AddParameter(`updated_at`, order.UpdatedAt)
 }
 
-//GetAll gets all order records
-func (me *OrderRepository) GetAll(ctx context.Context) ([]*Order, error) {
-	statement := dbx.NewStatement(`SELECT * FROM order`)
+//Add adds new order
+func (me *OrderRepository) Add(order *Order) {
+	statement := dbx.NewStatement(`INSERT INTO "order" (id, order_number, order_date, total, created_at, updated_at) VALUES (:id, :order_number, :order_date, :total, :created_at, :updated_at)`)
+	me.setStatementParam(statement, order)
 
-	rows, err := me.dbContext.QueryStatementContext(ctx, statement)
-	defer rows.Close()
-	if err != nil {
-		return nil, err
-	}
-	orders := []*Order{}
-	for rows.Next() {
-		order := &Order{}
-		err = rows.Scan(&order.ID, &order.OrderNumber, &order.OrderDate, &order.Total, &order.CreatedAt, &order.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-		orders = append(orders, order)
-	}
-	return orders, nil
+	me.dbContext.AddStatement(statement)
+}
+
+//Update updates existing order
+func (me *OrderRepository) Update(order *Order) {
+	statement := dbx.NewStatement(`UPDATE "order" SET order_number = :order_number, order_date = :order_date, total = :total, created_at = :created_at, updated_at = :updated_at WHERE id=:id`)
+	me.setStatementParam(statement, order)
+
+	me.dbContext.AddStatement(statement)
+}
+
+//Delete deletes existing order
+func (me *OrderRepository) Delete(orderID string) {
+	statement := dbx.NewStatement(`DELETE FROM "order" WHERE id = :id`)
+	statement.AddParameter(`id`, orderID)
+
+	me.dbContext.AddStatement(statement)
 }
 
 //GetByID gets order by order ID
@@ -74,28 +77,25 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*Order,
 	return nil, nil
 }
 
-//Add adds new order
-func (me *OrderRepository) Add(order *Order) {
-	statement := dbx.NewStatement(`INSERT INTO "order" (id, order_number, order_date, total, created_at, updated_at) VALUES (:id, :order_number, :order_date, :total, :created_at, :updated_at)`)
-	me.setStatementParam(statement, order)
+//GetAll gets all order records
+func (me *OrderRepository) GetAll(ctx context.Context) ([]*Order, error) {
+	statement := dbx.NewStatement(`SELECT * FROM order`)
 
-	me.dbContext.AddStatement(statement)
-}
-
-//Update updates existing order
-func (me *OrderRepository) Update(order *Order) {
-	statement := dbx.NewStatement(`UPDATE "order" SET order_number = :order_number, order_date = :order_date, total = :total, created_at = :created_at, updated_at = :updated_at WHERE id=:id`)
-	me.setStatementParam(statement, order)
-
-	me.dbContext.AddStatement(statement)
-}
-
-//Delete deletes existing order
-func (me *OrderRepository) Delete(orderID string) {
-	statement := dbx.NewStatement(`DELETE FROM "order" WHERE id = :id`)
-	statement.AddParameter(`id`, orderID)
-
-	me.dbContext.AddStatement(statement)
+	rows, err := me.dbContext.QueryStatementContext(ctx, statement)
+	defer rows.Close()
+	if err != nil {
+		return nil, err
+	}
+	orders := []*Order{}
+	for rows.Next() {
+		order := &Order{}
+		err = rows.Scan(&order.ID, &order.OrderNumber, &order.OrderDate, &order.Total, &order.CreatedAt, &order.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
 
 //NewOrderRepository create new order table instance

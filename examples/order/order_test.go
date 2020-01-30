@@ -166,7 +166,6 @@ func TestUpdateOrderMustError(t *testing.T) {
 func TestGetOrder(t *testing.T) {
 	dbContext, err := initDBContext()
 
-	dbContext.BeginTransaction()
 	defer dbContext.Close()
 
 	if err != nil {
@@ -201,5 +200,62 @@ func TestGetOrder(t *testing.T) {
 
 	if fetchedOrder.ID != createdOrder.ID {
 		t.Error("Fecthed order ID should be the same with created order ID")
+	}
+}
+
+func TestListOrder(t *testing.T) {
+	dbContext, err := initDBContext()
+
+	defer dbContext.Close()
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	orderRepo := postgres.NewOrderRepository(dbContext)
+	orderService := order.NewOrderService(orderRepo)
+	createRequest := &order.OrderCreateRequest{
+		OrderNumber: "ORDER 01",
+		OrderDate:   time.Now(),
+		Total:       10000,
+	}
+	ctx := context.Background()
+	createdOrder, err := orderService.CreateOrder(ctx, createRequest)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Print(createdOrder.ID + "\n")
+	listFilter := &order.OrderListFilter{
+		Limit:   10,
+		Keyword: "OR",
+	}
+
+	orders, err := orderService.ListOrder(ctx, listFilter)
+	if err != nil {
+		t.Error("list error: " + err.Error())
+	}
+
+	if orders == nil {
+		t.Error("Fecthed order should not be nil")
+		return
+	}
+
+	if len(orders) < 1 {
+		t.Error("Orders length must be greater than 0")
+	}
+
+	listFilter.Keyword = "ODER" //it is a typo. It should be 'ORDER', which will be the cause of no data returned
+
+	orders, err = orderService.ListOrder(ctx, listFilter)
+	if err != nil {
+		t.Error("list error: " + err.Error())
+	}
+
+	if orders == nil {
+		t.Error("Fecthed order should not be nil")
+		return
+	}
+
+	if len(orders) > 1 {
+		t.Error("Orders length must be 0")
 	}
 }

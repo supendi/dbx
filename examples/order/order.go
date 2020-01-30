@@ -9,46 +9,54 @@ import (
 //ErrOrderNotFound is an error if order is not found on data storage
 var ErrOrderNotFound = errors.New("Order is not found")
 
-//Order represent order model
-type Order struct {
-	ID          string
-	OrderNumber *string
-	OrderDate   time.Time
-	Total       float64
-	CreatedAt   time.Time
-	UpdatedAt   *time.Time
-}
+type (
+	//Order represent order model
+	Order struct {
+		ID          string
+		OrderNumber *string
+		OrderDate   time.Time
+		Total       float64
+		CreatedAt   time.Time
+		UpdatedAt   *time.Time
+	}
 
-//OrderCreateRequest represent the request model for creating an order
-type OrderCreateRequest struct {
-	OrderNumber string
-	OrderDate   time.Time
-	Total       float64
-	CreatedAt   time.Time
-}
+	//OrderCreateRequest represent the request model for creating an order
+	OrderCreateRequest struct {
+		OrderNumber string
+		OrderDate   time.Time
+		Total       float64
+		CreatedAt   time.Time
+	}
 
-//OrderUpdateRequest represent the request model for updating an existing order
-type OrderUpdateRequest struct {
-	ID          string
-	OrderNumber *string //I used pointer to only try if transaction works. That, order number is a not null field. I test it with null value. See Update order Test
-	OrderDate   time.Time
-	Total       float64
-	CreatedAt   time.Time
-	UpdatedAt   *time.Time
-}
+	//OrderUpdateRequest represent the request model for updating an existing order
+	OrderUpdateRequest struct {
+		ID          string
+		OrderNumber *string //I used pointer to only try if transaction works. That, order number is a not null field. I test it with null value. See Update order Test
+		OrderDate   time.Time
+		Total       float64
+		CreatedAt   time.Time
+		UpdatedAt   *time.Time
+	}
 
-//OrderGetRequest represent the request model for getting an order by Order ID
-type OrderGetRequest struct {
-	ID string
-}
+	//OrderGetRequest represent the request model for getting an order by Order ID
+	OrderGetRequest struct {
+		ID string
+	}
+
+	//OrderListFilter represent the request model for getting list of order
+	OrderListFilter struct {
+		Limit   int
+		Keyword string
+	}
+)
 
 //OrderRepository bertugas untuk mengurus data access order
 type OrderRepository interface {
-	GetAll(ctx context.Context) ([]*Order, error)
-	GetByID(ctx context.Context, orderID string) (*Order, error)
 	Add(ctx context.Context, order *Order) (*Order, error)
 	Update(ctx context.Context, order *Order) (*Order, error)
 	Delete(ctx context.Context, orderID string) error
+	GetByID(ctx context.Context, orderID string) (*Order, error)
+	Find(ctx context.Context, request *OrderListFilter) ([]*Order, error)
 }
 
 //OrderService order business logic lay here
@@ -96,6 +104,11 @@ func (me *OrderService) GetOrder(ctx context.Context, request *OrderGetRequest) 
 		return nil, ErrOrderNotFound
 	}
 	return fetchedOrder, err
+}
+
+//ListOrder get list of order by spesific filter
+func (me *OrderService) ListOrder(ctx context.Context, filter *OrderListFilter) ([]*Order, error) {
+	return me.orderRepository.Find(ctx, filter)
 }
 
 //NewOrderService return a new order service instance
