@@ -76,6 +76,7 @@ func (me *OrderRepository) Update(ctx context.Context, order *order.Order) (*ord
 		OrderDate:   order.OrderDate,
 		Total:       order.Total,
 		CreatedAt:   order.CreatedAt,
+		UpdatedAt:   order.UpdatedAt,
 	})
 	_, err := me.dbContext.SaveChanges(ctx)
 	return order, err

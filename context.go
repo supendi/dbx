@@ -41,8 +41,8 @@ func (me *Context) ClearStatements() {
 	me.Statements = nil
 }
 
-//ShouldUseTransaction check if the context should use transaction or not
-func (me *Context) ShouldUseTransaction() bool {
+//MustUseTransaction check if the context should use transaction or not
+func (me *Context) MustUseTransaction() bool {
 	return len(me.Statements) > 1 || me.transaction != nil
 }
 
@@ -84,7 +84,7 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	if me.ShouldUseTransaction() {
+	if me.MustUseTransaction() {
 		if me.transaction == nil {
 
 			newTransaction, err := me.BeginTransaction()
