@@ -1,23 +1,19 @@
 package dbx
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/jmoiron/sqlx"
 )
 
-//TODO: must be added some more signatures
-//Execer interface for dbclient
-type Execer interface {
-	ExecStatement(statement *Statement) (sql.Result, error)
-	QueryStatement(statement *Statement) (*sqlx.Rows, error)
-}
-
-//TODO: must be added some more signatures
-//Execer interface for dbclient
+//Transactioner TODO: must be added some more signatures
+//Transactioner interface for dbclient
 type Transactioner interface {
 	ExecStatement(statement *Statement) (sql.Result, error)
 	QueryStatement(statement *Statement) (*sqlx.Rows, error)
+	ExecStatementContext(ctx context.Context, statement *Statement) (sql.Result, error)
+	QueryStatementContext(ctx context.Context, statement *Statement) (*sqlx.Rows, error)
 	Rollback() error
 	Commit() error
 }
@@ -33,7 +29,7 @@ func (me *Context) AddStatement(statement *Statement) {
 	me.Statements = append(me.Statements, statement)
 }
 
-//AddStatement add statements to context
+//AddStatements add statements to context
 func (me *Context) AddStatements(statements ...*Statement) {
 	for _, statement := range statements {
 		me.Statements = append(me.Statements, statement)
@@ -51,11 +47,11 @@ func (me *Context) ShouldUseTransaction() bool {
 }
 
 //execUseTransaction execute all deferred statements by using transaction
-func (me *Context) execUseTransaction(transactioner Transactioner, statements []*Statement) ([]sql.Result, error) {
+func (me *Context) execUseTransaction(ctx context.Context, transactioner Transactioner, statements []*Statement) ([]sql.Result, error) {
 	var saveResults []sql.Result
 
 	for _, statement := range statements {
-		result, err := transactioner.ExecStatement(statement)
+		result, err := transactioner.ExecStatementContext(ctx, statement)
 		if err != nil {
 			if rollbackError := transactioner.Rollback(); rollbackError != nil {
 				return nil, rollbackError
@@ -69,11 +65,11 @@ func (me *Context) execUseTransaction(transactioner Transactioner, statements []
 }
 
 //execWithoutTransaction execute statement without transaction
-func (me *Context) execWithoutTransaction(execer Execer, statements []*Statement) ([]sql.Result, error) {
+func (me *Context) execWithoutTransaction(ctx context.Context, statements []*Statement) ([]sql.Result, error) {
 	var saveResults []sql.Result
 
 	for _, statement := range statements {
-		result, err := execer.ExecStatement(statement)
+		result, err := me.ExecStatementContext(ctx, statement)
 		if err != nil {
 			return nil, err
 		}
@@ -84,7 +80,10 @@ func (me *Context) execWithoutTransaction(execer Execer, statements []*Statement
 }
 
 //SaveChanges execute all defered statements to database
-func (me *Context) SaveChanges() ([]sql.Result, error) {
+func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	if me.ShouldUseTransaction() {
 		if me.transaction == nil {
 			newTransaction, err := me.BeginTransaction()
@@ -92,7 +91,7 @@ func (me *Context) SaveChanges() ([]sql.Result, error) {
 				return nil, err
 			}
 
-			results, err := me.execUseTransaction(newTransaction, me.Statements)
+			results, err := me.execUseTransaction(ctx, newTransaction, me.Statements)
 			me.ClearStatements()
 			if err != nil {
 				return nil, err
@@ -105,12 +104,12 @@ func (me *Context) SaveChanges() ([]sql.Result, error) {
 			return results, nil
 		}
 
-		results, err := me.execUseTransaction(me.transaction, me.Statements)
+		results, err := me.execUseTransaction(ctx, me.transaction, me.Statements)
 		me.ClearStatements()
 		return results, err
 	}
 
-	results, err := me.execWithoutTransaction(me, me.Statements)
+	results, err := me.execWithoutTransaction(ctx, me.Statements)
 	me.ClearStatements()
 	return results, err
 }

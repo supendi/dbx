@@ -1,4 +1,4 @@
-package examples
+package entities
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/supendi/dbx"
 )
 
+//Order represent order model
 type Order struct {
 	ID          string
 	OrderNumber string
@@ -17,11 +18,13 @@ type Order struct {
 	UpdatedAt   *time.Time
 }
 
-type OrderStatement struct {
+//OrderRepository is
+type OrderRepository struct {
 	dbContext *dbx.Context
 }
 
-func (me *OrderStatement) MapOrderToParam(statement *dbx.Statement, order *Order) {
+//setStatementParam set statement parameters
+func (me *OrderRepository) setStatementParam(statement *dbx.Statement, order *Order) {
 	statement.AddParameter(`id`, order.ID)
 	statement.AddParameter(`order_number`, order.OrderNumber)
 	statement.AddParameter(`order_date`, order.OrderDate)
@@ -30,11 +33,11 @@ func (me *OrderStatement) MapOrderToParam(statement *dbx.Statement, order *Order
 	statement.AddParameter(`updated_at`, order.UpdatedAt)
 }
 
-func (me *OrderStatement) GetAll(ctx context.Context) ([]*Order, error) {
+//GetAll gets all order records
+func (me *OrderRepository) GetAll(ctx context.Context) ([]*Order, error) {
 	statement := dbx.NewStatement(`SELECT * FROM order`)
-	me.dbContext.AddStatement(statement)
 
-	rows, err := me.dbContext.QueryStatement(statement)
+	rows, err := me.dbContext.QueryStatementContext(ctx, statement)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -51,12 +54,12 @@ func (me *OrderStatement) GetAll(ctx context.Context) ([]*Order, error) {
 	return orders, nil
 }
 
-func (me *OrderStatement) GetByID(ctx context.Context, orderID string) (*Order, error) {
+//GetByID gets order by order ID
+func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*Order, error) {
 	statement := dbx.NewStatement(`SELECT * FROM "order" WHERE id = :id`)
 	statement.AddParameter(`id`, orderID)
-	me.dbContext.AddStatement(statement)
 
-	rows, err := me.dbContext.QueryStatement(statement)
+	rows, err := me.dbContext.QueryStatementContext(ctx, statement)
 	defer rows.Close()
 	if err != nil {
 		return nil, err
@@ -72,29 +75,33 @@ func (me *OrderStatement) GetByID(ctx context.Context, orderID string) (*Order, 
 	return nil, errors.New(`Record not found`)
 }
 
-func (me *OrderStatement) Add(ctx context.Context, order *Order) {
+//Add adds new order
+func (me *OrderRepository) Add(order *Order) {
 	statement := dbx.NewStatement(`INSERT INTO "order" (id, order_number, order_date, total, created_at, updated_at) VALUES (:id, :order_number, :order_date, :total, :created_at, :updated_at)`)
-	me.MapOrderToParam(statement, order)
+	me.setStatementParam(statement, order)
 
 	me.dbContext.AddStatement(statement)
 }
 
-func (me *OrderStatement) Update(ctx context.Context, order *Order) {
+//Update updates existing order
+func (me *OrderRepository) Update(order *Order) {
 	statement := dbx.NewStatement(`UPDATE "order" SET order_number = :order_number, order_date = :order_date, total = :total, created_at = :created_at, updated_at = :updated_at WHERE id=:id`)
-	me.MapOrderToParam(statement, order)
+	me.setStatementParam(statement, order)
 
 	me.dbContext.AddStatement(statement)
 }
 
-func (me *OrderStatement) Delete(ctx context.Context, orderID string) {
+//Delete deletes existing order
+func (me *OrderRepository) Delete(orderID string) {
 	statement := dbx.NewStatement(`DELETE FROM "order" WHERE id = :id`)
 	statement.AddParameter(`id`, orderID)
 
 	me.dbContext.AddStatement(statement)
 }
 
-func NewOrderStatement(dbContext *dbx.Context) *OrderStatement {
-	return &OrderStatement{
+//NewOrderRepository create new order table instance
+func NewOrderRepository(dbContext *dbx.Context) *OrderRepository {
+	return &OrderRepository{
 		dbContext: dbContext,
 	}
 }

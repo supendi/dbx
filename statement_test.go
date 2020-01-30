@@ -5,7 +5,7 @@ import (
 )
 
 func TestAddParameter(t *testing.T) {
-	statement := NewStatement("SELECT * FROM unit_testx WHERE id=:id")
+	statement := NewStatement("SELECT * FROM person WHERE id=:id")
 	statement.AddParameter("id", 1)
 
 	if len(statement.Parameters) != 1 {
