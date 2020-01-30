@@ -30,7 +30,7 @@ type OrderCreateRequest struct {
 //OrderUpdateRequest represent the request model for updating an existing order
 type OrderUpdateRequest struct {
 	ID          string
-	OrderNumber *string
+	OrderNumber *string //I used pointer to only try if transaction works. That, order number is a not null field. I test it with null value. See Update order Test
 	OrderDate   time.Time
 	Total       float64
 	CreatedAt   time.Time
