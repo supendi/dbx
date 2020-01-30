@@ -4,12 +4,20 @@ import (
 	"context"
 	"errors"
 	"time"
-
-	"github.com/supendi/dbx/examples/entities"
 )
 
 //ErrOrderNotFound is an error if order is not found on data storage
 var ErrOrderNotFound = errors.New("Order is not found")
+
+//Order represent order model
+type Order struct {
+	ID          string
+	OrderNumber *string
+	OrderDate   time.Time
+	Total       float64
+	CreatedAt   time.Time
+	UpdatedAt   *time.Time
+}
 
 //OrderCreateRequest represent the request model for creating an order
 type OrderCreateRequest struct {
@@ -36,10 +44,10 @@ type OrderGetRequest struct {
 
 //OrderRepository bertugas untuk mengurus data access order
 type OrderRepository interface {
-	GetAll(ctx context.Context) ([]*entities.Order, error)
-	GetByID(ctx context.Context, orderID string) (*entities.Order, error)
-	Add(ctx context.Context, order *entities.Order) (*entities.Order, error)
-	Update(ctx context.Context, order *entities.Order) (*entities.Order, error)
+	GetAll(ctx context.Context) ([]*Order, error)
+	GetByID(ctx context.Context, orderID string) (*Order, error)
+	Add(ctx context.Context, order *Order) (*Order, error)
+	Update(ctx context.Context, order *Order) (*Order, error)
 	Delete(ctx context.Context, orderID string) error
 }
 
@@ -49,8 +57,8 @@ type OrderService struct {
 }
 
 //CreateOrder creates a new order
-func (me *OrderService) CreateOrder(ctx context.Context, request *OrderCreateRequest) (*entities.Order, error) {
-	newOrder := &entities.Order{
+func (me *OrderService) CreateOrder(ctx context.Context, request *OrderCreateRequest) (*Order, error) {
+	newOrder := &Order{
 		OrderNumber: &request.OrderNumber,
 		OrderDate:   request.OrderDate,
 		Total:       request.Total,
@@ -60,7 +68,7 @@ func (me *OrderService) CreateOrder(ctx context.Context, request *OrderCreateReq
 }
 
 //UpdateOrder updates an existing order
-func (me *OrderService) UpdateOrder(ctx context.Context, request *OrderUpdateRequest) (*entities.Order, error) {
+func (me *OrderService) UpdateOrder(ctx context.Context, request *OrderUpdateRequest) (*Order, error) {
 	existingOrder, err := me.orderRepository.GetByID(ctx, request.ID)
 	if err != nil {
 		return nil, err
@@ -82,7 +90,7 @@ func (me *OrderService) UpdateOrder(ctx context.Context, request *OrderUpdateReq
 }
 
 //GetOrder gets an order by its ID
-func (me *OrderService) GetOrder(ctx context.Context, request *OrderGetRequest) (*entities.Order, error) {
+func (me *OrderService) GetOrder(ctx context.Context, request *OrderGetRequest) (*Order, error) {
 	fetchedOrder, err := me.orderRepository.GetByID(ctx, request.ID)
 	if fetchedOrder == nil {
 		return nil, ErrOrderNotFound

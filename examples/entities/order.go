@@ -7,7 +7,7 @@ import (
 	"github.com/supendi/dbx"
 )
 
-//Order represent order model
+//Order represent order table
 type Order struct {
 	ID          string
 	OrderNumber *string

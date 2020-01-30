@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/supendi/dbx/examples/entities"
+	"github.com/supendi/dbx/examples/order"
 )
 
 //OrderRepository implements order.OrderRepository
@@ -13,42 +14,69 @@ type OrderRepository struct {
 }
 
 //GetAll returns all order records
-func (me *OrderRepository) GetAll(ctx context.Context) ([]*entities.Order, error) {
+func (me *OrderRepository) GetAll(ctx context.Context) ([]*order.Order, error) {
 	orderRecords, err := me.dbContext.Order.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}
-
-	orders := []*entities.Order{}
-
+	orders := []*order.Order{}
 	for _, orderRecord := range orderRecords {
-		orders = append(orders, orderRecord)
+		orders = append(orders, &order.Order{
+			ID:          orderRecord.ID,
+			OrderNumber: orderRecord.OrderNumber,
+			OrderDate:   orderRecord.OrderDate,
+			Total:       orderRecord.Total,
+			CreatedAt:   orderRecord.CreatedAt,
+			UpdatedAt:   orderRecord.UpdatedAt,
+		})
 	}
 	return orders, nil
 }
 
 //GetByID return single order record by order ID
-func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*entities.Order, error) {
+func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*order.Order, error) {
 	orderRecord, err := me.dbContext.Order.GetByID(ctx, orderID)
 	if err != nil {
 		return nil, err
 	}
+	var newOrder *order.Order
+	if orderRecord != nil {
+		newOrder = &order.Order{
+			ID:          orderRecord.ID,
+			OrderNumber: orderRecord.OrderNumber,
+			OrderDate:   orderRecord.OrderDate,
+			Total:       orderRecord.Total,
+			CreatedAt:   orderRecord.CreatedAt,
+			UpdatedAt:   orderRecord.UpdatedAt,
+		}
+	}
 
-	return orderRecord, nil
+	return newOrder, nil
 }
 
 //Add adds new order into database
-func (me *OrderRepository) Add(ctx context.Context, order *entities.Order) (*entities.Order, error) {
-	var newOrderID = uuid.New().String()
-	order.ID = newOrderID
-	me.dbContext.Order.Add(order)
+func (me *OrderRepository) Add(ctx context.Context, order *order.Order) (*order.Order, error) {
+	order.ID = uuid.New().String()
+	me.dbContext.Order.Add(&entities.Order{
+		ID:          order.ID,
+		OrderNumber: order.OrderNumber,
+		OrderDate:   order.OrderDate,
+		Total:       order.Total,
+		CreatedAt:   order.CreatedAt,
+	})
 	_, err := me.dbContext.SaveChanges(ctx)
 	return order, err
 }
 
 //Update updates existing order in database
-func (me *OrderRepository) Update(ctx context.Context, order *entities.Order) (*entities.Order, error) {
-	me.dbContext.Order.Update(order)
+func (me *OrderRepository) Update(ctx context.Context, order *order.Order) (*order.Order, error) {
+	me.dbContext.Order.Update(&entities.Order{
+		ID:          order.ID,
+		OrderNumber: order.OrderNumber,
+		OrderDate:   order.OrderDate,
+		Total:       order.Total,
+		CreatedAt:   order.CreatedAt,
+	})
 	_, err := me.dbContext.SaveChanges(ctx)
 	return order, err
 }
