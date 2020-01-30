@@ -61,8 +61,8 @@ func Test_Context_ShouldUseTransaction1(t *testing.T) {
 	dbContext.AddStatement(statement)
 	dbContext.AddStatement(statement)
 
-	if !dbContext.ShouldUseTransaction() {
-		t.Errorf("Context should use transaction = true, but got = %v", dbContext.ShouldUseTransaction())
+	if !dbContext.MustUseTransaction() {
+		t.Errorf("Context should use transaction = true, but got = %v", dbContext.MustUseTransaction())
 	}
 	fmt.Println("ShouldUseTransaction test 1 succedd")
 }
@@ -85,8 +85,8 @@ func Test_Context_ShouldUseTransaction2(t *testing.T) {
 
 	dbContext.Client.SetTransaction(tx)
 
-	if !dbContext.ShouldUseTransaction() {
-		t.Errorf("Context should use transaction = true even if its statements length is only 1, but got = %v", dbContext.ShouldUseTransaction())
+	if !dbContext.MustUseTransaction() {
+		t.Errorf("Context should use transaction = true even if its statements length is only 1, but got = %v", dbContext.MustUseTransaction())
 	}
 
 	fmt.Println("ShouldUseTransaction test 2 succeed")
