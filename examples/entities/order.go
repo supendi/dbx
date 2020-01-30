@@ -22,7 +22,7 @@ type OrderRepository struct {
 	dbContext *dbx.Context
 }
 
-//setStatementParam set statement parameters
+//setStatementParam sets statement parameters
 func (me *OrderRepository) setStatementParam(statement *dbx.Statement, order *Order) {
 	statement.AddParameter(`id`, order.ID)
 	statement.AddParameter(`order_number`, order.OrderNumber)
