@@ -10,7 +10,7 @@ import (
 //Order represent order model
 type Order struct {
 	ID          string
-	OrderNumber string
+	OrderNumber *string
 	OrderDate   time.Time
 	Total       float64
 	CreatedAt   time.Time
@@ -44,7 +44,7 @@ func (me *OrderRepository) GetAll(ctx context.Context) ([]*Order, error) {
 	orders := []*Order{}
 	for rows.Next() {
 		order := &Order{}
-		err = rows.Scan(order.ID, order.OrderNumber, order.OrderDate, order.Total, order.CreatedAt, order.UpdatedAt)
+		err = rows.Scan(&order.ID, &order.OrderNumber, &order.OrderDate, &order.Total, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -65,7 +65,7 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*Order,
 	}
 	for rows.Next() {
 		order := &Order{}
-		err = rows.Scan(order.ID, order.OrderNumber, order.OrderDate, order.Total, order.CreatedAt, order.UpdatedAt)
+		err = rows.Scan(&order.ID, &order.OrderNumber, &order.OrderDate, &order.Total, &order.CreatedAt, &order.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}

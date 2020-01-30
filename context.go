@@ -86,6 +86,7 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 	}
 	if me.ShouldUseTransaction() {
 		if me.transaction == nil {
+
 			newTransaction, err := me.BeginTransaction()
 			if err != nil {
 				return nil, err
@@ -103,7 +104,6 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 			}
 			return results, nil
 		}
-
 		results, err := me.execUseTransaction(ctx, me.transaction, me.Statements)
 		me.ClearStatements()
 		return results, err

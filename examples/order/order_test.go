@@ -47,7 +47,7 @@ func initDBContext() (*entities.DBContext, error) {
 	return dbContext, nil
 }
 
-func Test_OrderService_CreateOrder(t *testing.T) {
+func TestCreateOrder(t *testing.T) {
 	dbContext, err := initDBContext()
 	defer dbContext.Close()
 
@@ -56,16 +56,57 @@ func Test_OrderService_CreateOrder(t *testing.T) {
 	}
 	orderRepo := postgres.NewOrderRepository(dbContext)
 	orderService := order.NewOrderService(orderRepo)
-	newOrder := &order.Order{
+	createRequest := &order.OrderCreateRequest{
 		OrderNumber: "ORDER 01",
 		OrderDate:   time.Now(),
 		Total:       10000,
 	}
 
-	err = orderService.CreateOrder(context.Background(), newOrder)
-
+	newOrder, err := orderService.CreateOrder(context.Background(), createRequest)
 	fmt.Print(newOrder.ID)
 	if err != nil {
 		t.Error(err.Error())
 	}
+}
+
+func TestUpdateOrder(t *testing.T) {
+	dbContext, err := initDBContext()
+
+	dbContext.BeginTransaction()
+	defer dbContext.Close()
+
+	if err != nil {
+		t.Error(err.Error())
+	}
+	orderRepo := postgres.NewOrderRepository(dbContext)
+	orderService := order.NewOrderService(orderRepo)
+	createRequest := &order.OrderCreateRequest{
+		OrderNumber: "ORDER 01",
+		OrderDate:   time.Now(),
+		Total:       10000,
+	}
+	ctx := context.Background()
+	createdOrder, err := orderService.CreateOrder(ctx, createRequest)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	fmt.Print(createdOrder.ID + "\n")
+	//var newOrderNumber = "ORDER KE DUA"
+	updateRequest := &order.OrderUpdateRequest{
+		ID:          createdOrder.ID,
+		OrderNumber: nil,
+		OrderDate:   createdOrder.OrderDate,
+		Total:       200,
+	}
+
+	updatedOrder, err := orderService.UpdateOrder(ctx, updateRequest)
+	if err != nil {
+		t.Error("Update error: " + err.Error())
+	}
+	err = dbContext.CompleteTransaction()
+	if err != nil {
+		t.Error("Transaction complete error: " + err.Error())
+	}
+	fmt.Print(updatedOrder)
+
 }

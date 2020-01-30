@@ -67,10 +67,15 @@ func (me *Client) BeginTransaction() (*Transaction, error) {
 
 //CompleteTransaction commit and reset current transaction
 func (me *Client) CompleteTransaction() error {
-	err := me.transaction.Commit()
-	if err != nil {
-		me.ResetTransaction()
-		return err
+	if !me.transaction.isComplete {
+		err := me.transaction.Commit()
+		if err != nil {
+			if rollbackError := me.transaction.Rollback(); rollbackError != nil {
+				return rollbackError
+			}
+			me.ResetTransaction()
+			return err
+		}
 	}
 
 	me.ResetTransaction()
@@ -78,12 +83,12 @@ func (me *Client) CompleteTransaction() error {
 	return nil
 }
 
-//GetTransactionScope return current transaction
+//GetTransaction return current transaction
 func (me *Client) GetTransaction() *Transaction {
 	return me.transaction
 }
 
-//SetTransactionScope set the dbclient to which transaction it's belong to
+//SetTransaction set the dbclient to which transaction it's belong to
 func (me *Client) SetTransaction(transaction *Transaction) {
 	me.transaction = transaction
 }

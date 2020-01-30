@@ -65,21 +65,21 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*order.
 }
 
 //Add adds new order into database
-func (me *OrderRepository) Add(ctx context.Context, order *order.Order) error {
+func (me *OrderRepository) Add(ctx context.Context, order *order.Order) (*order.Order, error) {
 	var newOrderID = uuid.New().String()
 	order.ID = newOrderID
 	var newRecord = me.mapDomainToEntity(order)
 	me.dbContext.Order.Add(newRecord)
 	_, err := me.dbContext.SaveChanges(ctx)
-	return err
+	return order, err
 }
 
 //Update updates existing order in database
-func (me *OrderRepository) Update(ctx context.Context, order *order.Order) error {
+func (me *OrderRepository) Update(ctx context.Context, order *order.Order) (*order.Order, error) {
 	var entity = me.mapDomainToEntity(order)
 	me.dbContext.Order.Update(entity)
 	_, err := me.dbContext.SaveChanges(ctx)
-	return err
+	return order, err
 }
 
 //Delete deletes existing order
