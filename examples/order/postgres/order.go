@@ -54,7 +54,7 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*order.
 	return newOrder, nil
 }
 
-//Add adds new order into database
+//Add adds a new order into database
 func (me *OrderRepository) Add(ctx context.Context, order *order.Order) (*order.Order, error) {
 	order.ID = uuid.New().String()
 	me.dbContext.Order.Add(&entities.Order{
