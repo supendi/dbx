@@ -2,7 +2,6 @@ package entities
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/supendi/dbx"
@@ -72,7 +71,7 @@ func (me *OrderRepository) GetByID(ctx context.Context, orderID string) (*Order,
 		}
 		return order, nil
 	}
-	return nil, errors.New(`Record not found`)
+	return nil, nil
 }
 
 //Add adds new order
