@@ -60,6 +60,9 @@ func (me *Context) execUseTransaction(ctx context.Context, transactioner Transac
 		}
 		saveResults = append(saveResults, result)
 	}
+	if !me.IsUserDefinedTransaction {
+		me.CompleteTransaction()
+	}
 
 	return saveResults, nil
 }
@@ -87,9 +90,15 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 	if me.MustUseTransaction() {
 		if me.transaction == nil {
 
-			newTransaction, err := me.BeginTransaction()
+			me.IsUserDefinedTransaction = false //this flag is used in execUseTransaction(). if false, execUseTransaction will complete the transaction
+
+			tx, err := me.Beginx()
 			if err != nil {
 				return nil, err
+			}
+
+			newTransaction := &Transaction{
+				Tx: tx,
 			}
 
 			results, err := me.execUseTransaction(ctx, newTransaction, me.Statements)

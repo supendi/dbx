@@ -11,7 +11,8 @@ import (
 //Client represent db client
 type Client struct {
 	*sqlx.DB
-	transaction *Transaction
+	transaction              *Transaction
+	IsUserDefinedTransaction bool
 }
 
 //ExecStatement create, update or update statement
@@ -67,7 +68,7 @@ func (me *Client) BeginTransaction() (*Transaction, error) {
 
 //CompleteTransaction commit and reset current transaction
 func (me *Client) CompleteTransaction() error {
-	if !me.transaction.isComplete {
+	if me.transaction != nil && !me.transaction.isComplete {
 		err := me.transaction.Commit()
 		if err != nil {
 			if rollbackError := me.transaction.Rollback(); rollbackError != nil {
@@ -91,10 +92,14 @@ func (me *Client) GetTransaction() *Transaction {
 //SetTransaction set the dbclient to which transaction it's belong to
 func (me *Client) SetTransaction(transaction *Transaction) {
 	me.transaction = transaction
+	if transaction != nil {
+		me.IsUserDefinedTransaction = true
+	}
 }
 
 //ResetTransaction set current transaction to nil
 func (me *Client) ResetTransaction() {
+	me.IsUserDefinedTransaction = false
 	me.SetTransaction(nil)
 }
 

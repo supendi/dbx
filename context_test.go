@@ -252,6 +252,10 @@ func Test_Context_SaveChanges_MultiStatement_UseExternalTransaction(t *testing.T
 		t.Errorf("Results expected not to be nil")
 	}
 
+	dbContext.AddStatement(insertStatement2)
+
+	results, err = dbContext.SaveChanges(nil)
+
 	selectSQL := "SELECT * FROM person WHERE id=:id1 OR id =:id2;"
 	selectStatement := NewStatement(selectSQL)
 	selectStatement.AddParameter("id1", newID1)
