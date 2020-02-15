@@ -18,12 +18,12 @@ func Test_Client_ExecStatement(t *testing.T) {
 
 	client := NewClient(db)
 
-	var newId = uuid.New()
+	var newID = uuid.New()
 	//var newContext = context.Background()
 	var sql = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
 	statement := NewStatement(sql)
-	statement.AddParameter("id", newId)
+	statement.AddParameter("id", newID)
 	statement.AddParameter("name", "Andi Setiawan")
 	statement.AddParameter("created_at", time.Now())
 	statement.AddParameter("updated_at", nil)
@@ -52,12 +52,12 @@ func Test_Client_QueryStatement(t *testing.T) {
 
 	client := NewClient(db)
 
-	var newId = uuid.New()
+	var newID = uuid.New()
 	//var newContext = context.Background()
-	var insertSql = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
+	var insertSQL = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	insertStatement := NewStatement(insertSql)
-	insertStatement.AddParameter("id", newId)
+	insertStatement := NewStatement(insertSQL)
+	insertStatement.AddParameter("id", newID)
 	insertStatement.AddParameter("name", "Dadang")
 	insertStatement.AddParameter("created_at", time.Now())
 	insertStatement.AddParameter("updated_at", nil)
@@ -74,9 +74,9 @@ func Test_Client_QueryStatement(t *testing.T) {
 		return
 	}
 
-	selectSql := "SELECT * FROM person WHERE id=:id;"
-	selectStatement := NewStatement(selectSql)
-	selectStatement.AddParameter("id", newId)
+	selectSQL := "SELECT * FROM person WHERE id=:id;"
+	selectStatement := NewStatement(selectSQL)
+	selectStatement.AddParameter("id", newID)
 
 	rows, err := client.QueryStatement(selectStatement)
 

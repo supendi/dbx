@@ -22,12 +22,12 @@ func Test_Transaction_ExecStatement(t *testing.T) {
 		return
 	}
 
-	var newId = uuid.New()
+	var newID = uuid.New()
 	//var newContext = context.Background()
 	var sql = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
 	statement := NewStatement(sql)
-	statement.AddParameter("id", newId)
+	statement.AddParameter("id", newID)
 	statement.AddParameter("name", "Irpan Supendi")
 	statement.AddParameter("created_at", time.Now())
 	statement.AddParameter("updated_at", nil)
@@ -61,12 +61,12 @@ func Test_Transaction_QueryStatement(t *testing.T) {
 		return
 	}
 
-	var newId = uuid.New()
+	var newID = uuid.New()
 	//var newContext = context.Background()
-	var insertSql = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
+	var insertSQL = "INSERT INTO person (id, name, created_at, updated_at) VALUES (:id, :name, :created_at, :updated_at)"
 
-	statement := NewStatement(insertSql)
-	statement.AddParameter("id", newId)
+	statement := NewStatement(insertSQL)
+	statement.AddParameter("id", newID)
 	statement.AddParameter("name", "Irpan Supendi")
 	statement.AddParameter("created_at", time.Now())
 	statement.AddParameter("updated_at", nil)
@@ -89,9 +89,9 @@ func Test_Transaction_QueryStatement(t *testing.T) {
 		return
 	}
 
-	selectSql := "SELECT * FROM person WHERE id=:id;"
-	queryStatement := NewStatement(selectSql)
-	queryStatement.AddParameter("id", newId)
+	selectSQL := "SELECT * FROM person WHERE id=:id;"
+	queryStatement := NewStatement(selectSQL)
+	queryStatement.AddParameter("id", newID)
 	if dbTrans.IsComplete() {
 		err = dbTrans.StartOver()
 		if err != nil {

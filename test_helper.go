@@ -3,7 +3,7 @@ package dbx
 import (
 	"github.com/jmoiron/sqlx"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //needed
 )
 
 func getSqlxDb() (*sqlx.DB, error) {

@@ -7,7 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-//Transaction represent postgres transaction
+//Transaction represent db transaction
 type Transaction struct {
 	*sqlx.Tx
 	db         *sqlx.DB
@@ -19,22 +19,22 @@ func (me *Transaction) IsComplete() bool {
 	return me.isComplete
 }
 
-//ExecuteCommand Create, Update or Delete statement
+//ExecStatementContext Create, Update or Delete statement
 func (me *Transaction) ExecStatementContext(ctx context.Context, statement *Statement) (sql.Result, error) {
 	return me.Tx.NamedExecContext(ctx, statement.SQL, statement.Parameters)
 }
 
-//Read records on database and return it as sql.Rows
+//QueryStatementContext records on database and return it as sql.Rows
 func (me *Transaction) QueryStatementContext(ctx context.Context, statement *Statement) (*sqlx.Rows, error) {
 	return sqlx.NamedQueryContext(ctx, me.Tx, statement.SQL, statement.Parameters)
 }
 
-//ExecuteCommand Create, Update or Delete statement
+//ExecStatement Create, Update or Delete statement
 func (me *Transaction) ExecStatement(statement *Statement) (sql.Result, error) {
 	return me.Tx.NamedExec(statement.SQL, statement.Parameters)
 }
 
-//Read records on database and return it as sql.Rows
+//QueryStatement records on database and return it as sql.Rows
 func (me *Transaction) QueryStatement(statement *Statement) (*sqlx.Rows, error) {
 	return sqlx.NamedQuery(me.Tx, statement.SQL, statement.Parameters)
 }
