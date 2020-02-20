@@ -91,22 +91,18 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 	if ctx == nil {
 		ctx = context.Background()
 	}
-	transactionScope := me.GetTransactionScope(ctx)
-	if transactionScope != nil {
-		me.SetTransaction(transactionScope)
-	}
-	if me.MustUseTransaction() {
-		if me.transaction == nil {
 
+	if me.MustUseTransaction() {
+		txFromContext := me.GetTransactionScope(ctx)
+		if txFromContext != nil {
+			me.SetTransaction(txFromContext)
+		}
+		if me.GetTransaction() == nil {
 			me.IsUserDefinedTransaction = false //this flag is used in execUseTransaction(). if false, execUseTransaction will complete the transaction
 
-			tx, err := me.Beginx()
+			newTransaction, err := NewTransaction(me.DB)
 			if err != nil {
 				return nil, err
-			}
-
-			newTransaction := &Transaction{
-				Tx: tx,
 			}
 
 			results, err := me.execUseTransaction(ctx, newTransaction, me.Statements)
@@ -121,7 +117,7 @@ func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 			}
 			return results, nil
 		}
-		results, err := me.execUseTransaction(ctx, me.transaction, me.Statements)
+		results, err := me.execUseTransaction(ctx, me.GetTransaction(), me.Statements)
 		me.ClearStatements()
 		return results, err
 	}
