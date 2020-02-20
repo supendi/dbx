@@ -86,26 +86,6 @@ func (me *Context) execWithoutTransaction(ctx context.Context, statements []*Sta
 	return saveResults, nil
 }
 
-//SetTransactionScope set transaction to the specified context
-func (me *Context) SetTransactionScope(ctx context.Context) error {
-	newTransaction, err := NewTransaction(me.DB)
-	if err != nil {
-		return err
-	}
-
-	ctx = context.WithValue(ctx, contextKey, newTransaction)
-	return nil
-}
-
-//GetTransactionScope get transaction from context
-func (me *Context) GetTransactionScope(ctx context.Context) *Transaction {
-	value := ctx.Value(contextKey)
-	if value != nil {
-		return value.(*Transaction)
-	}
-	return nil
-}
-
 //SaveChanges execute all defered statements to database
 func (me *Context) SaveChanges(ctx context.Context) ([]sql.Result, error) {
 	if ctx == nil {
